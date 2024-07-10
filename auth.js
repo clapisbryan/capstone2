@@ -18,7 +18,6 @@ module.exports.verify = (req, res, next) => {
     return res.status(401).send({ auth: "Failed. No Token" });
   } else {
     token = token.slice(7, token.length);
-
     jwt.verify(
       token,
       process.env.AUTH_SECRET_KEY,
@@ -27,7 +26,7 @@ module.exports.verify = (req, res, next) => {
           return res.status(403).send({ auth: "Failed", message: err.message });
         } else {
           req.user = decodedToken;
-
+          console.log("req.user", req.user);
           next();
         }
       }
