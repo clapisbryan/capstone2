@@ -1,8 +1,27 @@
-Featured by Bryan Clapis
+# Application Name: Demo-app
+
+### Team Members:
+- Bryan Clapis
+- Cindy Gaoat
+
+## User Credentials:
+#### Admin User:
+	- email: admin@email.com
+	- password: admin123
+#### Dummy Customer:
+	- email: customer@email.com
+	- password: customer123
+
+# Features
+## Features by Bryan Clapis
+### Setup
 - Server
 - Authentication
+### Product Resources
+- Create Product (Admin only)
 
-Featured by Cindy Gaoat
+
+## Features by Cindy Gaoat
 - DATA MODELS 
 	User.js
 	Product.js
@@ -12,5 +31,3 @@ Featured by Cindy Gaoat
 	user.js
 - CONTROLLERS
 	user.js
-
-Credentials
