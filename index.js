@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 
+const productRoutes = require("./routes/product");
+
 const app = express();
 
 require("dotenv").config();
@@ -31,6 +33,7 @@ mongoose.connection.once("open", () =>
 );
 
 // [SECTION] Add your routes here
+app.use("/", productRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
