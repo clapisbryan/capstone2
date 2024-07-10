@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 
+// Import routes
+const userRoutes = require("./routes/user.js");
+
 const app = express();
 
 require("dotenv").config();
@@ -31,6 +34,7 @@ mongoose.connection.once("open", () =>
 );
 
 // [SECTION] Add your routes here
+app.use("/users", userRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
