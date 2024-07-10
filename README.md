@@ -19,7 +19,20 @@
 - Authentication
 ### Product Resources
 - Create Product (Admin only)
-
+- Retrieves all products
+- Retrieves active products
+- Retrieves a single product by ID
+- Updates a product by ID (admin only)
+- Archives a product by ID (admin only)
+- Activates a product by ID (admin only)
+### Order Resource:
+- Non-admin User checkout (Create Order)
+- Retrieve authenticated user's order
+- Retrieve all orders (admin only)
+### Cart Resources
+- Change product quantities
+- Remove a product from cart
+- Clear cart
 
 ## Features by Cindy Gaoat
 - DATA MODELS 
