@@ -4,8 +4,11 @@ const mongoose = require("mongoose");
 
 const cors = require("cors");
 
+
 // Import routes
 const userRoutes = require("./routes/user.js");
+
+const productRoutes = require("./routes/product");
 
 const app = express();
 
@@ -33,8 +36,10 @@ mongoose.connection.once("open", () =>
   console.log("Now connected to MongoDB Atlas")
 );
 
-// [SECTION] Add your routes here
+// [SECTION] Add your routes here<<<<<<< HEAD
 app.use("/users", userRoutes);
+app.use("/products", productRoutes);
+
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
