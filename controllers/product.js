@@ -36,7 +36,7 @@ module.exports.retrieveAllproduct = async (req, res) => {
     .then((product) => {
       if (product.length > 0) {
         // use if condition if product greather than 0
-        return res.status(201).send({products : product});
+        return res.status(201).send({ products: product });
       } else {
         // use else condition if product less than 0
         return res.status(404).send({ message: "No product found" });
@@ -49,8 +49,9 @@ module.exports.retrieveAllproduct = async (req, res) => {
 module.exports.retrieveActiveproduct = async (req, res) => {
   return await Product.find({ isActive: true }) // use find function/method that will handle a isActive argument and it will find all isActive value true
     .then((product) => {
-      if (product.length > 0) { // use if condition if product has a data 
-        return res.status(201).send({products : product});
+      if (product.length > 0) {
+        // use if condition if product has a data
+        return res.status(201).send({ products: product });
       } else {
         return res.status(404).send({ message: "No product found" }); // show this message if there's no product found
       }
@@ -62,10 +63,11 @@ module.exports.retrieveProductById = async (req, res) => {
   const productId = req.params.id; // this variable handle a id from postman params
   console.log(productId);
   console.log(req.params.id);
-  return await Product.find({id : req.params.id}) // use find function/method to show specific product using id
+  return await Product.find({ id: req.params.id }) // use find function/method to show specific product using id
     .then((product) => {
-      if (product.length > 0) { // use if condition if product has a data 
-        return res.status(201).send({product : product});
+      if (product.length > 0) {
+        // use if condition if product has a data
+        return res.status(201).send({ product: product });
       } else {
         return res.status(404).send({ message: "Product not found" });
       }
@@ -74,31 +76,35 @@ module.exports.retrieveProductById = async (req, res) => {
 };
 
 module.exports.updateProductById = async (req, res) => {
-  const productId = req.params.id; // handle postman params id
-  console.log(productId);
-  return await Product.findByIdAndUpdate(
-    productId,
-    {
-      name: req.body.name,
-      description: req.body.description,
-      price: req.body.price,
-      isActive: req.body.isActive,
-    },
-    { new: true }
-  ) // find a product using a postman params id and then update a product data using a request body
-    .then((updatedProduct) => {
-      console.log(updatedProduct);
-      if (!updatedProduct) { // double check if updateproduct has a data if no product found use a return inside a block
-        return res.status(404).send({ message: "Product not found" });
-      } else {
-        return res.status(201).send(updatedProduct);
-      }
-    })
-    .catch((err) => errorHandler(err, req, res));
+  const productId = req.params.productId; // use req.params.productId not id
+
+  console.log("productId", productId); // Log the correct productId
+
+  try {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        isActive: req.body.isActive,
+      },
+      { new: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).send({ message: "Product not found" });
+    }
+
+    return res.status(200).send(updatedProduct);
+  } catch (error) {
+    console.error("Error updating product:", error);
+    return res.status(500).send({ error: "Internal Server Error" });
+  }
 };
 
 module.exports.archiveProduct = async (req, res) => {
-  const productId = req.params.id; // handle a postman params id
+  const productId = req.params.productId; // handle a postman params id
 
   let updateActiveField = {
     isActive: false,
@@ -115,7 +121,7 @@ module.exports.archiveProduct = async (req, res) => {
         }
         return res.status(200).send({
           message: "Product archived successfully",
-          archiveProduct: product
+          archiveProduct: product,
         });
       } else {
         return res.status(404).send({ message: "Product not found" });
@@ -125,7 +131,7 @@ module.exports.archiveProduct = async (req, res) => {
 };
 
 module.exports.activateProduct = (req, res) => {
-  const productId = req.params.id;
+  const productId = req.params.productId;
 
   let updateActiveField = {
     isActive: true,
@@ -142,7 +148,7 @@ module.exports.activateProduct = (req, res) => {
         }
         return res.status(200).send({
           message: "Product activated successfully",
-          activateProduct: product
+          activateProduct: product,
         });
       } else {
         return res.status(404).send({ message: "Product not found" });
