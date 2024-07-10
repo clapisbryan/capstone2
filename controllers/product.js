@@ -1,8 +1,6 @@
 const Product = require("../models/Product");
 const { errorHandler } = require("../auth");
 
-module.exports.getProducts = (req, res) => {};
-
 module.exports.createNewProduct = (req, res) => {
   if (req.user.isAdmin) {
     // double check if a user was a admin

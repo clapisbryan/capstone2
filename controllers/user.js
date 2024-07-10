@@ -88,10 +88,10 @@ module.exports.updateAdmin = async (req, res) => {
               details: {},
             });
           } else if (result.isAdmin) {
-            return res.status(200).send({ message: "Admin already" });
+            return res.status(201).send({ message: "Admin already" });
           } else {
             result.isAdmin = true;
-            result.save().then(() => res.send({ updatedUser: result }));
+            result.save().then(() => res.status(200).send({ updatedUser: result }));
           }
         })
         .catch((error) => errorHandler(error, req, res));

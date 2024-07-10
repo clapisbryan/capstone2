@@ -10,6 +10,8 @@ const userRoutes = require("./routes/user.js");
 
 const productRoutes = require("./routes/product");
 
+const cartRoutes = require("./routes/cart");
+
 const app = express();
 
 require("dotenv").config();
@@ -39,7 +41,7 @@ mongoose.connection.once("open", () =>
 // [SECTION] Add your routes here<<<<<<< HEAD
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
-
+app.use("/carts", cartRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
