@@ -2,16 +2,16 @@ const Cart = require("../models/Cart");
 const { errorHandler } = require("../auth");
 
 module.exports.getCartItems = (req, res) => {
-	console.log("req.user.id", req.user.id);
-	return Cart.findOne({ userId: req.user.id })
-	.then( cart => {
-		if(!cart) {
-			return res.status(404).send({ message: "User Not Found"})
-		} 
-		return res.status(200).send({ items: cart.cartItems})
-	})
-	.catch((err) => errorHandler(err, req, res))
-}
+  console.log("req.user.id", req.user.id);
+  return Cart.findOne({ userId: req.user.id })
+    .then((cart) => {
+      if (!cart) {
+        return res.status(404).send({ message: "User Not Found" });
+      }
+      return res.status(200).send({ items: cart.cartItems });
+    })
+    .catch((err) => errorHandler(err, req, res));
+};
 
 module.exports.addToCart = async (req, res) => {
   const userId = req.user.id; // get id of authenticated user
@@ -32,7 +32,7 @@ module.exports.addToCart = async (req, res) => {
           .then((item) => {
             return res.status(201).send({
               message: "Item added to cart successfully",
-              cart : item
+              cart: item,
             });
           })
           .catch((error) => errorHandler(error, req, res));
@@ -61,7 +61,7 @@ module.exports.addToCart = async (req, res) => {
           .then((savedCart) => {
             return res.status(200).send({
               message: "Item added to cart successfully",
-              cart : savedCart
+              cart: savedCart,
             });
           })
           .catch((error) => errorHandler(error, req, res));
@@ -71,139 +71,154 @@ module.exports.addToCart = async (req, res) => {
 };
 
 module.exports.changeProductQuantity = async (req, res) => {
-    try {
-        console.log("Request Body:", req.body);
+  try {
+    console.log("Request Body:", req.body);
 
-        const { cartItems, totalPrice } = req.body;
-        if (!Array.isArray(cartItems) || totalPrice == null) {
-            return res.status(400).send({ message: "Invalid data format: cartItems should be an array and totalPrice is required" });
-        }
-
-        const totalPriceFloat = parseFloat(totalPrice);
-        if (isNaN(totalPriceFloat)) {
-            return res.status(400).send({ message: "Invalid totalPrice value" });
-        }
-
-        const cart = await Cart.findOne({ userId: req.user.id });
-
-        if (!cart) {
-            return res.status(404).send({ message: "Cart not found" });
-        }
-
-        let newTotalPrice = 0;
-
-      
-        const itemMap = new Map();
-        cart.cartItems.forEach(item => itemMap.set(item.productId, item));
-
-       
-        cartItems.forEach(newItem => {
-            const { productId, quantity, subtotal } = newItem;
-
-           
-            if (!productId || quantity == null || subtotal == null) {
-                throw new Error("Invalid cart item data: productId, quantity, and subtotal are required");
-            }
-
-           
-            const quantityInt = parseInt(quantity, 10);
-            const subtotalFloat = parseFloat(subtotal);
-
-            if (isNaN(quantityInt) || isNaN(subtotalFloat)) {
-                throw new Error("Invalid quantity or subtotal value");
-            }// Check if the item already exists in the cart
-            if (itemMap.has(productId)) {
-                // Update existing item
-                const item = itemMap.get(productId);
-                item.quantity += quantityInt;
-                item.subtotal += subtotalFloat;
-            } else {
-                // Add new item to cart
-                cart.cartItems.push({
-                    productId,
-                    quantity: quantityInt,
-                    subtotal: subtotalFloat
-                });
-            }
-        });
-
-        // Calculate the new totalPrice
-        cart.cartItems.forEach(item => {
-            newTotalPrice += item.subtotal;
-        });
-
-        // Update cart's totalPrice
-        cart.totalPrice = newTotalPrice;
-
-        // Save the updated cart
-        await cart.save();
-
-        return res.status(200).send({
-            message: 'Cart updated successfully',
-            updatedCart: cart
-        });
-
-    } catch (error) {
-        console.error('Error in changeProductQuantity:', error);
-        errorHandler(error, req, res);
+    const { cartItems, totalPrice } = req.body;
+    if (!Array.isArray(cartItems) || totalPrice == null) {
+      return res.status(400).send({
+        message:
+          "Invalid data format: cartItems should be an array and totalPrice is required",
+      });
     }
+
+    const totalPriceFloat = parseFloat(totalPrice);
+    if (isNaN(totalPriceFloat)) {
+      return res.status(400).send({ message: "Invalid totalPrice value" });
+    }
+
+    const cart = await Cart.findOne({ userId: req.user.id });
+
+    if (!cart) {
+      return res.status(404).send({ message: "Cart not found" });
+    }
+
+    let newTotalPrice = 0;
+
+    const itemMap = new Map();
+    cart.cartItems.forEach((item) => itemMap.set(item.productId, item));
+
+    cartItems.forEach((newItem) => {
+      const { productId, quantity, subtotal } = newItem;
+
+      if (!productId || quantity == null || subtotal == null) {
+        throw new Error(
+          "Invalid cart item data: productId, quantity, and subtotal are required"
+        );
+      }
+
+      const quantityInt = parseInt(quantity, 10);
+      const subtotalFloat = parseFloat(subtotal);
+
+      if (isNaN(quantityInt) || isNaN(subtotalFloat)) {
+        throw new Error("Invalid quantity or subtotal value");
+      } // Check if the item already exists in the cart
+      if (itemMap.has(productId)) {
+        // Update existing item
+        const item = itemMap.get(productId);
+        item.quantity += quantityInt;
+        item.subtotal += subtotalFloat;
+      } else {
+        // Add new item to cart
+        cart.cartItems.push({
+          productId,
+          quantity: quantityInt,
+          subtotal: subtotalFloat,
+        });
+      }
+    });
+
+    // Calculate the new totalPrice
+    cart.cartItems.forEach((item) => {
+      newTotalPrice += item.subtotal;
+    });
+
+    // Update cart's totalPrice
+    cart.totalPrice = newTotalPrice;
+
+    // Save the updated cart
+    await cart.save();
+
+    return res.status(200).send({
+      message: "Cart updated successfully",
+      updatedCart: cart,
+    });
+  } catch (error) {
+    console.error("Error in changeProductQuantity:", error);
+    errorHandler(error, req, res);
+  }
 };
 
-module.exports.removeProductFromCart = async (req, res) => {
-  const userId = req.user.id; // get a authenticated user
+module.exports.removeProductFromCart = (req, res) => {
+  const { productId } = req.params;
 
-  const productId = req.params.productId; // get a product id using postman params
+  // Find the cart for the user
+  Cart.findOne({ userId: req.user.id })
+    .then((cart) => {
+      if (!cart) {
+        return res.status(404).send({
+          message: "Cart not found",
+        });
+      }
 
-  return await Cart.findOne({ userId }) // used findOne function/method to find a user cart
-    .then((cart) => { // this argument will handle a cart data
-      if (cart.length > 0) { // this will handle a condition if a cart has a data
-      	const cartItemIndex = cart.cartItems.findIndex(
-      		(item) => item.productId === productId
-        ); // check if a product from post params was already in cartItems
+      // Find index of cartItem to remove
+      const indexToRemove = cart.cartItems.findIndex(
+        (item) => item.productId === productId
+      );
 
-        if (cartItemIndex === -1) { // use if condition cartItemIndex has negative value or empty
-        	return res.status(404).send({ message: "Product not found in cart" });
-        } else {
-          cart.cartItems.splice(cartItemIndex, 1); // clear cart
+      if (indexToRemove === -1) {
+        return res.status(404).json({
+          message: `Product with ID ${productId} not found in cart`,
+        });
+      }
 
-          // Recompute a total price
-          cart.totalPrice = cart.cartItems.reduce(
-          	(total, item) => total + item.subtotal,
-          	0
-          	);
+      // Calculate the subtotal of the item being removed
+      const removedItemSubtotal = cart.cartItems[indexToRemove].subtotal;
 
-          return cart
-            .save() // save new product cart
-            .then((result) => res.status(200).send({ cart })) // show current cart 
-            .catch((err) => errorHandler(err, req, res));
-        }
-    } else {
-        // return message if a cart doesn't have a data
-    	return res.status(404).send({ message: "Cart not found" });
-    }
-})
+      // Remove item from cartItems array
+      cart.cartItems.splice(indexToRemove, 1);
+
+      // Update totalPrice for the cart
+      cart.totalPrice -= removedItemSubtotal;
+
+      // Save updated cart
+      return cart
+        .save()
+        .then((savedCart) => {
+          return res.status(200).send({
+            message: `Product with ID ${productId} removed from cart successfully`,
+          });
+        })
+        .catch((error) => errorHandler(error, req, res));
+    })
     .catch((err) => errorHandler(err, req, res));
 };
 
-module.exports.clearCart = async (req, res) => {
-  const userId = req.user.id; // get id of authenticated user
+module.exports.clearCart = (req, res) => {
+  // Find the cart for the user
+  Cart.findOne({ userId: req.user.id })
+    .then((cart) => {
+      if (!cart) {
+        return res.status(404).send({
+          message: "Cart not found",
+        });
+      }
 
-  return await Cart.findOne({ userId }) 
-  .then((cart) => {
-  	if (cart.length > 0) {
-  		cart.cartItems = [];
+      // Clear cartItems array
+      cart.cartItems = [];
 
-  		cart.totalPrice = 0;
+      // Reset totalPrice
+      cart.totalPrice = 0;
 
-  		return cart
-  		.save()
-  		.then((result) =>
-  			res.status(200).send({ message: "Cart cleared successfully" })
-  			)
-  		.catch((err) => errorHandler(err, req, res));
-  	} else {
-  		return res.status(404).send({ message: "Cart not found" });
-  	}
-  })
-  .catch((err) => errorHandler(err, req, res));
+      // Save updated cart
+      return cart
+        .save()
+        .then((savedCart) => {
+          return res.status(200).send({
+            message: "Cart cleared successfully",
+          });
+        })
+        .catch((error) => errorHandler(error, req, res));
+    })
+    .catch((err) => errorHandler(err, req, res));
 };
