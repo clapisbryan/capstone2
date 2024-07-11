@@ -78,27 +78,27 @@ module.exports.updateProductById = async (req, res) => {
 
   console.log("productId", productId); // Log the correct productId
 
-  try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      {
-        name: req.body.name,
-        description: req.body.description,
-        price: req.body.price,
-        isActive: req.body.isActive,
-      },
-      { new: true }
-    );
-
-    if (!updatedProduct) {
-      return res.status(404).send({ message: "Product not found" });
-    }
-
-    return res.status(200).send(updatedProduct);
-  } catch (error) {
-    console.error("Error updating product:", error);
-    return res.status(500).send({ error: "Internal Server Error" });
-  }
+  return await Product.findByIdAndUpdate(
+    productId,
+    {
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      isActive: req.body.isActive,
+    },
+    { new: true }
+  )
+    .then((updatedProduct) => {
+      if (updatedProduct.length > 0) {
+        return res.status(200).send({
+          message: "Product updated successfully",
+          updatedProduct: updatedProduct,
+        });
+      } else {
+        return res.status(404).send({ message: "Product not found" });
+      }
+    })
+    .catch((err) => errorHandler(err, req, res));
 };
 
 module.exports.archiveProduct = async (req, res) => {
