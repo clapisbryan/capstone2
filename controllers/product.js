@@ -160,7 +160,7 @@ module.exports.searchProductsByName = async (req, res) => {
 
   if (!searchProductName) {
     return res.status(400).send({
-      message: "Search query 'name' is required",
+      message: "Search 'name' is required", 
     });
   }
 
@@ -171,8 +171,7 @@ module.exports.searchProductsByName = async (req, res) => {
       return res.status(200).send(products);
     } else {
       return res.status(404).send({
-        message: `No products found with name with '${searchProductName}'`,
-
+        message: "Product name not found", 
       });
     }
   });
