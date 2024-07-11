@@ -14,4 +14,5 @@ router.patch("/:productId/update", verify, verifyAdmin, productController.update
 router.patch("/:productId/archive", verify, verifyAdmin, productController.archiveProduct); // Archives a product by ID (admin only)
 router.patch("/:productId/activate", verify, verifyAdmin, productController.activateProduct);// Activates a product by ID (admin only)
 
+router.post("/search-by-price", productController.searchProductByPrice);
 module.exports = router;

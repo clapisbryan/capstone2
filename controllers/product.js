@@ -154,3 +154,16 @@ module.exports.activateProduct = (req, res) => {
     })
     .catch((error) => errorHandler(error, req, res));
 };
+
+module.exports.searchProductByPrice = async (req, res) => {
+  const { minPrice, maxPrice } = req.body;
+  // Find products within the price range
+    Product.find({
+        price: { $gte: minPrice, $lte: maxPrice }
+    })
+    .then(products => {
+        res.status(200).send(products);
+    })
+    .catch((error) => errorHandler(error, req, res));
+    
+}

@@ -8,7 +8,7 @@ module.exports.getCartItems = (req, res) => {
       if (!cart) {
         return res.status(404).send({ message: "User Not Found" });
       }
-      return res.status(200).send({ items: cart.cartItems });
+      return res.status(200).send({ cart: cart });
     })
     .catch((err) => errorHandler(err, req, res));
 };
@@ -168,7 +168,7 @@ module.exports.removeProductFromCart = (req, res) => {
 
       if (indexToRemove === -1) {
         return res.status(404).json({
-          message: `Product with ID ${productId} not found in cart`,
+          message: `Item not found in cart`
         });
       }
 
@@ -186,7 +186,8 @@ module.exports.removeProductFromCart = (req, res) => {
         .save()
         .then((savedCart) => {
           return res.status(200).send({
-            message: `Product with ID ${productId} removed from cart successfully`,
+            message: `Item removed from cart successfully`,
+            updatedCart: savedCart
           });
         })
         .catch((error) => errorHandler(error, req, res));
@@ -216,6 +217,7 @@ module.exports.clearCart = (req, res) => {
         .then((savedCart) => {
           return res.status(200).send({
             message: "Cart cleared successfully",
+            cart: savedCart
           });
         })
         .catch((error) => errorHandler(error, req, res));
