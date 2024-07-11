@@ -155,6 +155,47 @@ module.exports.activateProduct = (req, res) => {
     .catch((error) => errorHandler(error, req, res));
 };
 
+// module.exports.searchProductByName = (req, res) => {
+//     const { name } = req.body;
+
+//     // Validate input
+//     if (!name || typeof name !== 'string') {
+//         return res.status(400).json({ message: "A valid 'name' is required" });
+//     }
+
+//     // Search for products by name using a case-insensitive regex
+//     Product.find({ name: name })
+//     .then(products => {
+//         if(products.length === 0){
+//           return res.status(404).send("Product not found")
+//         }
+//         console.log("Products found:", products);
+//         return res.status(200).json(products);
+//     })
+//     .catch((error) => errorHandler(error, req, res));
+// };
+module.exports.searchProductsByName = async (req, res) => {
+  const searchProductName = req.body.name; 
+
+  if (!searchProductName) {
+    return res.status(400).send({
+      message: "Search query 'name' is required",
+    });
+  }
+
+  return await Product.find({
+    name: { $regex: searchProductName, $options: "i" },
+  }).then((products) => {
+    if (products.length > 0) {
+      return res.status(200).send(products);
+    } else {
+      return res.status(404).send({
+        message:  ``
+      });
+    }
+  });
+};
+
 module.exports.searchProductByPrice = async (req, res) => {
   const { minPrice, maxPrice } = req.body;
   // Find products within the price range

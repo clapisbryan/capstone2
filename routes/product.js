@@ -13,6 +13,6 @@ router.get("/:productId", productController.retrieveProductById); 							// Retr
 router.patch("/:productId/update", verify, verifyAdmin, productController.updateProductById); // Updates a product by ID (admin only)
 router.patch("/:productId/archive", verify, verifyAdmin, productController.archiveProduct); // Archives a product by ID (admin only)
 router.patch("/:productId/activate", verify, verifyAdmin, productController.activateProduct);// Activates a product by ID (admin only)
-
+router.post("/search-by-name", productController.searchProductByName);
 router.post("/search-by-price", productController.searchProductByPrice);
 module.exports = router;
