@@ -6,14 +6,14 @@ const { verify, verifyAdmin } = require("../auth");
 
 const router = express.Router();
 
-router.get("/:userId/cartItems", cartController.getCartItems);
+router.get("/get-cart", verify, cartController.getCartItems);
 
-router.post("/addToCart", cartController.addToCart);
+router.post("/add-to-cart", verify, cartController.addToCart);
 
-router.patch("/updateQuantity", cartController.updateProductQuantity);
+router.patch("/update-cart-quantity", verify, cartController.updateProductQuantity);
 
-router.delete("/removeFromCart", cartController.removeFromCart);
+router.delete("/remove-from-cart", cartController.removeFromCart);
 
-router.delete("/clearCart", cartController.clearCart);
+router.delete("/clear-cart", cartController.clearCart);
 
 module.exports = router;

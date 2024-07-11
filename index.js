@@ -38,10 +38,10 @@ mongoose.connection.once("open", () =>
   console.log("Now connected to MongoDB Atlas")
 );
 
-// [SECTION] Add your routes here<<<<<<< HEAD
+// [SECTION] Add your routes here
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
-app.use("/carts", cartRoutes);
+app.use("/cart", cartRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
