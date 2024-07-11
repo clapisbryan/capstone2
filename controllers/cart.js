@@ -2,12 +2,13 @@ const Cart = require("../models/Cart");
 const { errorHandler } = require("../auth");
 
 module.exports.getCartItems = (req, res) => {
-	return Cart.find({ id: req.params.id})
-	.then( cart => {
-		if(!cart) {
+	return Cart.find({ id: req.user.id })
+	console.log("req.user.id", req.user.id);
+	.then( item => {
+		if(!item) {
 			return res.status(404).send({ message: "User Not Found"})
 		} 
-		return res.status(200).send({ items: cart.cartItems})
+		return res.status(200).send({ items: item.cartItems})
 	})
 	.catch((err) => errorHandler(err, req, res))
 }
