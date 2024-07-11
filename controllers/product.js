@@ -155,6 +155,29 @@ module.exports.activateProduct = (req, res) => {
     .catch((error) => errorHandler(error, req, res));
 };
 
+module.exports.searchProductsByName = async (req, res) => {
+  const searchProductName = req.body.name; 
+
+  if (!searchProductName) {
+    return res.status(400).send({
+      message: "Search query 'name' is required",
+    });
+  }
+
+  return await Product.find({
+    name: { $regex: searchProductName, $options: "i" },
+  }).then((products) => {
+    if (products.length > 0) {
+      return res.status(200).send(products);
+    } else {
+      return res.status(404).send({
+        message: `No products found with name with '${searchProductName}'`,
+
+      });
+    }
+  });
+};
+
 module.exports.searchProductByPrice = async (req, res) => {
   const { minPrice, maxPrice } = req.body;
   // Find products within the price range
