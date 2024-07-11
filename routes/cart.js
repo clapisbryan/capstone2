@@ -10,10 +10,10 @@ router.get("/get-cart", verify, cartController.getCartItems);
 
 router.post("/add-to-cart", verify, cartController.addToCart);
 
-router.patch("/update-cart-quantity", verify, cartController.updateProductQuantity);
+router.patch("/update-cart-quantity", verify, cartController.changeProductQuantity);
 
-router.delete("/remove-from-cart", cartController.removeFromCart);
+router.delete("/remove-from-cart",verify, cartController.removeProductFromCart);
 
-router.delete("/clear-cart", cartController.clearCart);
+router.delete("/clear-cart",verify, cartController.clearCart);
 
 module.exports = router;

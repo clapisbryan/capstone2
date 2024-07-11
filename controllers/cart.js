@@ -3,7 +3,7 @@ const { errorHandler } = require("../auth");
 
 module.exports.getCartItems = (req, res) => {
 	console.log("req.user.id", req.user.id);
-	return Cart.find({ id: req.user.id })
+	return Cart.findOne({ userId: req.user.id })
 	.then( cart => {
 		if(!cart) {
 			return res.status(404).send({ message: "User Not Found"})
@@ -13,81 +13,140 @@ module.exports.getCartItems = (req, res) => {
 	.catch((err) => errorHandler(err, req, res))
 }
 
-module.exports.addToCart = (req, res) => {
-	console.log("req.user.id", req.user.id);
-	return Cart.findOne({id: req.user.id})
-	.then(cart => {
-		console.log("Item of cart", cart);
-		if(!cart ) {
-			if(cart.cartItems.length === 0) {
-			let newItem = new Cart({
-				userId: req.user.id,
-				cartItems : req.body.cartItems,
-				totalPrice: req.body.totalPrice
-			});
-			console.log(newItem);
-			return newItem.save()
-			.then(item => {
-				return res.status(201).send({
-					success: true,
-					message: 'Item added to cart successfully'
-				});
-			})
-			.catch(error => errorHandler(error, req, res));
-			} 
-		} else {
-			let totalPrice = 0;
-			cart.cartItems.forEach((item) => {
-				console.log("item:", item);
-			})
-		}
-		
+module.exports.addToCart = async (req, res) => {
+  const userId = req.user.id; // get id of authenticated user
+  const { cartItems, totalPrice } = req.body;
 
-	})
-	.catch((err) => errorHandler(err, req, res))
-}
+  return await Cart.findOne({ userId: userId }) // find a cart of user
+    .then((cart) => {
+      // If cart does not exist, create a new one
+      if (!cart) {
+        let newCart = new Cart({
+          userId: userId,
+          cartItems: cartItems,
+          totalPrice: totalPrice,
+        });
+
+        return newCart
+          .save()
+          .then((item) => {
+            return res.status(201).send({
+              message: "Item added to cart successfully",
+              cart : item
+            });
+          })
+          .catch((error) => errorHandler(error, req, res));
+      } else {
+        // Cart exists, merge cartItems and update totalPrice
+        cartItems.forEach((newItem) => {
+          let existingItem = cart.cartItems.find(
+            (item) => item.productId === newItem.productId
+          );
+          if (existingItem) {
+            // Update existing item
+            existingItem.quantity += newItem.quantity;
+            existingItem.subtotal += newItem.subtotal;
+          } else {
+            // Add new item to cartItems
+            cart.cartItems.push(newItem);
+          }
+        });
+
+        // Update totalPrice
+        cart.totalPrice += totalPrice;
+
+        // Save updated cart
+        return cart
+          .save()
+          .then((savedCart) => {
+            return res.status(200).send({
+              message: "Item added to cart successfully",
+              cart : savedCart
+            });
+          })
+          .catch((error) => errorHandler(error, req, res));
+      }
+    })
+    .catch((err) => errorHandler(err, req, res));
+};
 
 module.exports.changeProductQuantity = async (req, res) => {
-  const userId = req.user.id; // get id of authenticated user
+    try {
+        console.log("Request Body:", req.body);
 
-  const productId = req.params.productId; // get id of postman params
-  const quantity = req.body.quantity; // get a quantity of postman
+        const { cartItems, totalPrice } = req.body;
+        if (!Array.isArray(cartItems) || totalPrice == null) {
+            return res.status(400).send({ message: "Invalid data format: cartItems should be an array and totalPrice is required" });
+        }
 
-  return await Cart.findOne({ userId }) // use find function/method to find a vart of
-  .then((cart) => {
-  	if (cart.length > 0) {
-        // use if condition that will handle a cart length
-  		return cart.cartItems
-          .find((item) => item.productId === productId) // check if a product was already on cart
-          .then((cartItem) => {
-          	if (cartItem.length > 0) {
-              // use if condition to check if cartItem has a data
-              cartItem.quantity = quantity; // add request body quantity to cartItem.quantity
-              cartItem.subtotal = cartItem.quantity * cartItem.price; // compute a subtotal using a cart quantity and price
+        const totalPriceFloat = parseFloat(totalPrice);
+        if (isNaN(totalPriceFloat)) {
+            return res.status(400).send({ message: "Invalid totalPrice value" });
+        }
 
-              // Recalculate a cart total price
-              cart.totalPrice = cart.cartItems.reduce(
-              	(total, item) => total + item.subtotal,
-              	0
-              	);
-              return cart
-                .save() // save new cart items to mongoDB
-                .then(() => res.status(200).send({ cart })) // show a success response
-                .catch((err) => errorHandler(err, req, res)); // show error message if there's an error while saving cart item to mongoDB
+        const cart = await Cart.findOne({ userId: req.user.id });
+
+        if (!cart) {
+            return res.status(404).send({ message: "Cart not found" });
+        }
+
+        let newTotalPrice = 0;
+
+      
+        const itemMap = new Map();
+        cart.cartItems.forEach(item => itemMap.set(item.productId, item));
+
+       
+        cartItems.forEach(newItem => {
+            const { productId, quantity, subtotal } = newItem;
+
+           
+            if (!productId || quantity == null || subtotal == null) {
+                throw new Error("Invalid cart item data: productId, quantity, and subtotal are required");
+            }
+
+           
+            const quantityInt = parseInt(quantity, 10);
+            const subtotalFloat = parseFloat(subtotal);
+
+            if (isNaN(quantityInt) || isNaN(subtotalFloat)) {
+                throw new Error("Invalid quantity or subtotal value");
+            }// Check if the item already exists in the cart
+            if (itemMap.has(productId)) {
+                // Update existing item
+                const item = itemMap.get(productId);
+                item.quantity += quantityInt;
+                item.subtotal += subtotalFloat;
             } else {
-              // return message if there's no product found
-            	return res
-            	.status(404)
-            	.send({ message: "Product not found in cart" });
+                // Add new item to cart
+                cart.cartItems.push({
+                    productId,
+                    quantity: quantityInt,
+                    subtotal: subtotalFloat
+                });
             }
         });
-      } else {
-        // return message if there's no cart found
-      	return res.status(404).send({ message: "Cart not found" });
-      }
-  })
-    // show error message if there's an error while searching a user cart
-  .catch((err) => errorHandler(err, req, res));
+
+        // Calculate the new totalPrice
+        cart.cartItems.forEach(item => {
+            newTotalPrice += item.subtotal;
+        });
+
+        // Update cart's totalPrice
+        cart.totalPrice = newTotalPrice;
+
+        // Save the updated cart
+        await cart.save();
+
+        return res.status(200).send({
+            message: 'Cart updated successfully',
+            updatedCart: cart
+        });
+
+    } catch (error) {
+        console.error('Error in changeProductQuantity:', error);
+        errorHandler(error, req, res);
+    }
 };
 
 module.exports.removeProductFromCart = async (req, res) => {
