@@ -2,38 +2,38 @@ const mongoose = require("mongoose");
 
 const orderSchema = new mongoose.Schema({
   userId: {
-    type: String,
-    required: [true, "User ID is required"],
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   },
   productsOrdered: [
     {
       productId: {
-        type: String,
-        required: [true, "Product ID is required"],
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
       },
-
       quantity: {
         type: Number,
-        required: [true, "Quantity is required"],
+        required: true,
       },
       subtotal: {
         type: Number,
-        required: [true, "Subtotal is required"],
+        required: true,
       },
     },
   ],
   totalPrice: {
     type: Number,
-    required: [true, "Total Price is required"],
+    required: true,
   },
   orderedOn: {
-    // allows us to use the date/time format
     type: Date,
-    // now property of the Date object will get the current date/time that is registered on your device
     default: Date.now,
   },
   status: {
     type: String,
+    enum: ["Pending", "Shipped", "Delivered"], // Example status values, adjust as per your application's needs
     default: "Pending",
   },
 });
