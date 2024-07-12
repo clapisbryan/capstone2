@@ -2,7 +2,7 @@ const Order = require("../models/Order");
 const { errorHandler } = require("../auth");
 
 module.exports.retrieveAllOrder = (req, res) => {
-	return Order.Find({})
+	return Order.find({})
 	.then((order) => {
 		if(!order) {
 			return res.status(404).send({ message: "No Orders Found"})
@@ -14,7 +14,7 @@ module.exports.retrieveAllOrder = (req, res) => {
 
 module.exports.retrieveMyOrder = (req, res) => {
 
-	return Order.FindOne({ userId : req.user.id })
+	return Order.findOne({ userId : req.user.id })
 	.then((order) => {
 		if(!order) {
 			return res.status(404).send({ message: "No Orders Found"})
