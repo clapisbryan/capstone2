@@ -44,7 +44,7 @@ mongoose.connection.once("open", () =>
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
-app.use("/order", orderRoutes);
+app.use("/orders", orderRoutes);
 
 app.listen(process.env.PORT, () => {
   console.log(`Server was connected: ${process.env.PORT}`);
