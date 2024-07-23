@@ -37,3 +37,24 @@ module.exports.createOrder = async (req, res) => {
     })
     .catch((err) => errorHandler(err, req, res));
 };
+module.exports.retrieveAllOrder = async (req, res) => {
+  return await Order.find({}).then((order) => {
+    if (!order) {
+      return res.status(404).send({ message: "No Orders Found" });
+    } else {
+      return res.status(200).send({ orders: order });
+    }
+  });
+};
+
+module.exports.retrieveMyOrder = async (req, res) => {
+  return await Order.findOne({ userId: req.user.id })
+    .then((order) => {
+      if (!order) {
+        return res.status(404).send({ message: "No Orders Found" });
+      } else {
+        return res.status(200).send({ orders: order });
+      }
+    })
+    .catch((err) => errorHandler(err, req, res));
+};
