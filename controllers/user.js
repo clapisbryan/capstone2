@@ -54,18 +54,17 @@ module.exports.loginUser = (req, res) => {
 };
 
 module.exports.showUserDetails = (req, res) => {
-  return User.findById(req.body._id)
-    .then((user) => {
-      if (!user) {
-        // if the user has invalid token, send a message 'invalid signature'.
-        return res.status(403).send({ error: "User not found" });
-      } else {
-        // if the user is found, return the user.
-        user.password = undefined;
-        return res.status(200).send({ user: user });
-      }
-    })
-    .catch((error) => errorHandler(error, req, res));
+  const userId = req.user.id;
+
+	return User.findById(userId)
+		.then(user => {
+			if (!user) {
+				res.status(404).send({ error: 'User not found' });
+			}
+			user.password = undefined;
+			return res.status(200).send({ user });
+		})
+		.catch(err => res.status(500).send({ error: 'Failed to fetch user profile', details: err }));
 };
 
 module.exports.updateAdmin = async (req, res) => {
