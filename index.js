@@ -23,11 +23,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: ["http://localhost:8000"],
+  origin: ["http://localhost:8000", "http://127.0.0.1:5500", "http://localhost:5173"],
   // Allow only the specified HTTP methods
-  // methods: ["GET", "POST"],
+  methods: ["GET", "POST"],
   // Allow only the specified headers
-  // allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
