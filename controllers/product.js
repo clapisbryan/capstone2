@@ -58,17 +58,15 @@ module.exports.retrieveActiveproduct = async (req, res) => {
 };
 
 module.exports.retrieveProductById = async (req, res) => {
-  const productId = req.params.id; // this variable handle a id from postman params
-  console.log(productId);
-  console.log(req.params.id);
-  return await Product.find({ id: req.params.id }) // use find function/method to show specific product using id
+  const productId = req.params.productId; // this variable handle a id from postman params
+
+  return await Product.findById(productId)// use find function/method to show specific product using id
     .then((product) => {
-      if (product.length > 0) {
-        // use if condition if product has a data
-        return res.status(201).send({ product: product });
-      } else {
+      if (!product) {
         return res.status(404).send({ message: "Product not found" });
       }
+
+      return res.status(200).send({ product });
     })
     .catch((err) => errorHandler(err, req, res));
 };
@@ -156,11 +154,11 @@ module.exports.activateProduct = (req, res) => {
 };
 
 module.exports.searchProductsByName = async (req, res) => {
-  const searchProductName = req.body.name; 
+  const searchProductName = req.body.name;
 
   if (!searchProductName) {
     return res.status(400).send({
-      message: "Search 'name' is required", 
+      message: "Search 'name' is required",
     });
   }
 
@@ -171,7 +169,7 @@ module.exports.searchProductsByName = async (req, res) => {
       return res.status(200).send(products);
     } else {
       return res.status(404).send({
-        message: "Product name not found", 
+        message: "Product name not found",
       });
     }
   });
@@ -180,12 +178,12 @@ module.exports.searchProductsByName = async (req, res) => {
 module.exports.searchProductByPrice = async (req, res) => {
   const { minPrice, maxPrice } = req.body;
   // Find products within the price range
-    Product.find({
-        price: { $gte: minPrice, $lte: maxPrice }
-    })
+  Product.find({
+    price: { $gte: minPrice, $lte: maxPrice }
+  })
     .then(products => {
-        res.status(200).send(products);
+      res.status(200).send(products);
     })
     .catch((error) => errorHandler(error, req, res));
-    
+
 }
