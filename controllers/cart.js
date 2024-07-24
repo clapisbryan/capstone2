@@ -8,7 +8,7 @@ module.exports.getCartItems = (req, res) => {
       if (!cart) {
         return res.status(404).send({ message: "User Not Found" });
       }
-      return res.status(200).send({ cart: cart });
+      return res.status(200).send(cart);
     })
     .catch((err) => errorHandler(err, req, res));
 };
@@ -72,13 +72,11 @@ module.exports.addToCart = async (req, res) => {
 
 module.exports.changeProductQuantity = async (req, res) => {
   try {
-    console.log("Request Body:", req.body);
-
     const { cartItems, totalPrice } = req.body;
+
     if (!Array.isArray(cartItems) || totalPrice == null) {
       return res.status(400).send({
-        message:
-          "Invalid data format: cartItems should be an array and totalPrice is required",
+        message: "Invalid data format: cartItems should be an array and totalPrice is required",
       });
     }
 
@@ -93,11 +91,7 @@ module.exports.changeProductQuantity = async (req, res) => {
       return res.status(404).send({ message: "Cart not found" });
     }
 
-    let newTotalPrice = 0;
-
-    const itemMap = new Map();
-    cart.cartItems.forEach((item) => itemMap.set(item.productId, item));
-
+    // Update each item in cartItems array
     cartItems.forEach((newItem) => {
       const { productId, quantity, subtotal } = newItem;
 
@@ -107,45 +101,36 @@ module.exports.changeProductQuantity = async (req, res) => {
         );
       }
 
-      const quantityInt = parseInt(quantity, 10);
-      const subtotalFloat = parseFloat(subtotal);
+      // Find the item in cart or create a new one if not found
+      const existingItem = cart.cartItems.find(item => item.productId === productId);
 
-      if (isNaN(quantityInt) || isNaN(subtotalFloat)) {
-        throw new Error("Invalid quantity or subtotal value");
-      } // Check if the item already exists in the cart
-      if (itemMap.has(productId)) {
+      if (existingItem) {
         // Update existing item
-        const item = itemMap.get(productId);
-        item.quantity += quantityInt;
-        item.subtotal += subtotalFloat;
+        existingItem.quantity = quantity;
+        existingItem.subtotal = subtotal;
       } else {
-        // Add new item to cart
+        // Add new item to cartItems
         cart.cartItems.push({
           productId,
-          quantity: quantityInt,
-          subtotal: subtotalFloat,
+          quantity,
+          subtotal
         });
       }
     });
 
-    // Calculate the new totalPrice
-    cart.cartItems.forEach((item) => {
-      newTotalPrice += item.subtotal;
-    });
-
-    // Update cart's totalPrice
-    cart.totalPrice = newTotalPrice;
+    // Calculate the new totalPrice based on updated quantities
+    cart.totalPrice = totalPriceFloat;
 
     // Save the updated cart
     await cart.save();
 
-    return res.status(200).send({
-      message: "Cart updated successfully",
-      updatedCart: cart,
-    });
+    return res.status(200).send(cart);
   } catch (error) {
     console.error("Error in changeProductQuantity:", error);
-    errorHandler(error, req, res);
+    return res.status(500).send({
+      message: "Internal server error",
+      error: error.message,
+    });
   }
 };
 
