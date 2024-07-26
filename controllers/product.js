@@ -87,7 +87,7 @@ module.exports.updateProductById = async (req, res) => {
     { new: true }
   )
     .then((updatedProduct) => {
-      if (updatedProduct.length > 0) {
+      if (updatedProduct) {
         return res.status(200).send({
           message: "Product updated successfully",
           updatedProduct: updatedProduct,
