@@ -83,7 +83,7 @@ module.exports.updateUser = async (req, res) => {
     }, { new: true })
       .then(result => {
         if (result) {
-          return res.status(200).send({ message: "Update user details successfully", user: result });
+          return res.status(200).send({ message: "Successfully updated", user: result });
         } else {
           return res.status(404).send({ message: "User not found" });
         }
