@@ -56,16 +56,43 @@ module.exports.loginUser = (req, res) => {
 module.exports.showUserDetails = (req, res) => {
   const userId = req.user.id;
 
-	return User.findById(userId)
-		.then(user => {
-			if (!user) {
-				res.status(404).send({ error: 'User not found' });
-			}
-			user.password = undefined;
-			return res.status(200).send({ user });
-		})
-		.catch(err => res.status(500).send({ error: 'Failed to fetch user profile', details: err }));
+  return User.findById(userId)
+    .then(user => {
+      if (!user) {
+        res.status(404).send({ error: 'User not found' });
+      }
+      user.password = undefined;
+      return res.status(200).send({ user });
+    })
+    .catch(err => res.status(500).send({ error: 'Failed to fetch user profile', details: err }));
 };
+module.exports.updateUser = async (req, res) => {
+  console.log("reqBody", req.body);
+  const { id } = req.user
+
+  if (!req.body.email.includes("@")) {
+    return res.status(400).send({ message: "Email Invalid" });
+  } else if (req.body.mobileNo.length !== 11) {
+    return res.status(400).send({ message: "Mobile number invalid" });
+  } else {
+    return await User.findByIdAndUpdate(id, {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      mobileNo: req.body.mobileNo
+    }, { new: true })
+      .then(result => {
+        if (result) {
+          return res.status(200).send({ message: "Update user details successfully", user: result });
+        } else {
+          return res.status(404).send({ message: "User not found" });
+        }
+      })
+      .catch((error) => errorHandler(error, req, res));
+  }
+
+
+}
 
 module.exports.updateAdmin = async (req, res) => {
   let adminUserId = req.user.id; //user id after generated token

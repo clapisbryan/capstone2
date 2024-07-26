@@ -12,6 +12,8 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 // Authenticated user only
 router.get('/details', verify, userController.showUserDetails);
+
+router.patch('/update-user', verify, userController.updateUser);
 // Admin-only
 router.patch('/:id/set-as-admin', verify, verifyAdmin, userController.updateAdmin);
 // Authenticated user only
