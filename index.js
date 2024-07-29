@@ -29,7 +29,7 @@ const corsOptions = {
     "https://capstone3-q6bm8uxyu-bryans-projects-7acc38e5.vercel.app"
   ],
   // Allow only the specified HTTP methods
-  // methods: ["GET", "POST"],
+  methods: ["GET", "POST"],
   // Allow only the specified headers
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
