@@ -27,7 +27,7 @@ const corsOptions = {
   // Allow only the specified HTTP methods
   // methods: ["GET", "POST"],
   // Allow only the specified headers
-  // allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
   optionsSuccessStatus: 200,
 };
